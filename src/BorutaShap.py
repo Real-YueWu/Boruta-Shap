@@ -6,7 +6,14 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans
 from sklearn.inspection import permutation_importance
 from scipy.sparse import issparse
-from scipy.stats import binom_test, ks_2samp
+
+import scipy
+if scipy.__version__ >= '1.12.0':
+    alter_binom = True
+    from scipy.stats import binomtest, ks_2samp
+else:
+    from scipy.stats import binom_test, ks_2samp
+    
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm
 import random
@@ -882,6 +889,8 @@ class BorutaShap:
         This is an exact, two-sided test of the null hypothesis
         that the probability of success in a Bernoulli experiment is p
         """
+        if alter_binom:
+            return [binomtest(x, n=n, p=p, alternative=alternative).pvalue for x in array.astype(int)]
         return [binom_test(x, n=n, p=p, alternative=alternative) for x in array]
 
 
